@@ -61,8 +61,7 @@ export function loadItems(): TechItem[] {
     if (raw) {
       const parsed: unknown = JSON.parse(raw);
       if (Array.isArray(parsed)) {
-        const valid = parsed.filter(isValidTechItem);
-        if (valid.length) return valid;
+        return parsed.filter(isValidTechItem);
       }
     }
   } catch {}
