@@ -1,15 +1,12 @@
 import { motion } from 'framer-motion';
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { ZONE_CONFIG, DEFAULT_ITEMS, QUADRANT_CONFIG, langColor, LANG_COLORS, loadItems, saveItems, type TechItem } from '../data';
-
-type Zone = 'adopt' | 'trial' | 'assess' | 'hold';
-type QuadCode = 'Q1' | 'Q2' | 'Q3' | 'Q4';
+import { ZONE_CONFIG, DEFAULT_ITEMS, QUADRANT_CONFIG, langColor, LANG_COLORS, loadItems, saveItems, type TechItem, type Zone, type QuadrantCode } from '../data';
 
 export default function TechRadar() {
   const [items, setItems] = useState<TechItem[]>(() => loadItems());
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ name: '', language: 'Framework' as string, quadrant: 'Q1' as QuadCode, zone: 'adopt' as Zone });
+  const [form, setForm] = useState({ name: '', language: 'Framework' as string, quadrant: 'Q1' as QuadrantCode, zone: 'adopt' as Zone });
 
   useEffect(() => { saveItems(items); }, [items]);
   useEffect(() => {
@@ -26,15 +23,13 @@ export default function TechRadar() {
       const idx = qItems.indexOf(item);
       const quad = QUADRANT_CONFIG[item.quadrant];
       for (const zk of ['adopt' as Zone, 'trial', 'assess', 'hold'] as Zone[]) {
-        if (!result[item.id][zk]) {
-          const zc = ZONE_CONFIG[zk];
-          const midAngle = (quad.angleRange[0] + quad.angleRange[1]) / 2;
-          const quadWidth = quad.angleRange[1] - quad.angleRange[0];
-          const spread = quadWidth / (qItems.length + 1);
-          const angle = midAngle + (idx - (qItems.length - 1) / 2) * spread;
-          const zoneCenter = zc.innerR + (zc.outerR - zc.innerR) / 2;
-          result[item.id][zk] = { x: zoneCenter * Math.cos(angle), y: -zoneCenter * Math.sin(angle) };
-        }
+        const zc = ZONE_CONFIG[zk];
+        const midAngle = (quad.angleRange[0] + quad.angleRange[1]) / 2;
+        const quadWidth = quad.angleRange[1] - quad.angleRange[0];
+        const spread = quadWidth / (qItems.length + 1);
+        const angle = midAngle + (idx - (qItems.length - 1) / 2) * spread;
+        const zoneCenter = zc.innerR + (zc.outerR - zc.innerR) / 2;
+        result[item.id][zk] = { x: zoneCenter * Math.cos(angle), y: -zoneCenter * Math.sin(angle) };
       }
     }
     return result;
@@ -73,9 +68,9 @@ export default function TechRadar() {
               {field === 'name' ? (
                 <input value={form[field]} onChange={e => setForm(p=>({...p,[field]:e.target.value}))} onKeyDown={e=>{if(e.key==='Enter')handleAdd()}} autoFocus style={{width:'100%',padding:'7px 10px',background:'#11142aee',border:'1px solid #ffffff15',borderRadius:6,color:'#fff',fontSize:13}} />
               ) : (
-                <select value={form[field]} onChange={e => { const v = field==='quadrant'? e.target.value as QuadCode : field==='zone' ? e.target.value as Zone : e.target.value; setForm(p=>({...p,[field]:v})) }} style={{width:'100%',padding:'7px 10px',background:'#11142aee',border:'1px solid #ffffff15',borderRadius:6,color:'#fff',fontSize:13}}>
+                <select value={form[field]} onChange={e => { const v = field==='quadrant'? e.target.value as QuadrantCode : field==='zone' ? e.target.value as Zone : e.target.value; setForm(p=>({...p,[field]:v})) }} style={{width:'100%',padding:'7px 10px',background:'#11142aee',border:'1px solid #ffffff15',borderRadius:6,color:'#fff',fontSize:13}}>
                   {field==='language' && ['Framework','Language','Practices','Platform','Architect.','Tool'].map(t=><option key={t} value={t}>{t}</option>)}
-                  {field==='quadrant' && Object.entries(QUADRANT_CONFIG).map(([k,v])=>{const kv=k as QuadCode;return <option key={kv} value={kv}>{v.name}</option>})}
+                  {field==='quadrant' && Object.entries(QUADRANT_CONFIG).map(([k,v])=>{const kv=k as QuadrantCode;return <option key={kv} value={kv}>{v.name}</option>})}
                   {field==='zone' && Object.entries(ZONE_CONFIG).map(([k,v])=>{const kv=k as Zone;return <option key={kv} value={kv}>{v.label}</option>})}
                 </select>
               )}
@@ -90,7 +85,7 @@ export default function TechRadar() {
       {hoveredId && (() => { const item = items.find(i => i.id === hoveredId); if (!item) return null; return (<div style={{position:'absolute',bottom:-10,left:'50%',transform:'translateX(-50%)',background:'#1a1d30ee',border:'1px solid #ffffff18',borderRadius:8,padding:'4px 12px',zIndex:20,pointerEvents:'none',whiteSpace:'nowrap',display:'flex',gap:6}}><span style={{color:langColor(item.language),fontWeight:700}}>{item.name}</span></div>); })()}
       <svg viewBox="-420 -420 840 840" style={{width:'100%',maxWidth:760,height:'auto',background:'#11142a',borderRadius:20}}>
         <circle cx="0" cy="0" r={400} fill="#11142a" />
-        {(['Q1','Q2','Q3','Q4'] as QuadCode[]).map(q => {
+        {(['Q1','Q2','Q3','Q4'] as QuadrantCode[]).map(q => {
           const a = QUADRANT_CONFIG[q].angleRange;
           const x1 = 400 * Math.cos(a[0]);
           const y1 = -400 * Math.sin(a[0]);
@@ -103,7 +98,7 @@ export default function TechRadar() {
         {Object.values(ZONE_CONFIG).map(zc => <circle key={zc.label} cx="0" cy="0" r={zc.outerR} fill="none" stroke="#ffffff08" strokeWidth={1} />)}
         {[-Math.PI/2,0,Math.PI/2,Math.PI].map(a => <line key={'l'+a} x1={-400*Math.cos(a)} y1={-400*Math.sin(a)} x2={400*Math.cos(a)} y2={400*Math.sin(a)} stroke="#ffffff06" strokeWidth={1} />)}
         <circle cx="0" cy="0" r={28} fill="#0a0c16" stroke="#ffffff12" strokeWidth={1.5} /><circle cx="0" cy="0" r={8} fill="#252840" />
-        {Object.entries(QUADRANT_CONFIG).map(([k,v]) => { const p: Record<QuadCode,[number,number]> = { Q1:[260,-235],Q2:[-255,-215],Q3:[260,248],Q4:[-255,228] }; const [x,y]=p[k as QuadCode]; return <text key={k} x={x} y={y} textAnchor={x>0?'start':'end'} fill={v.color+'cc'} fontSize={13} fontWeight={700}>{v.name}</text>; })}
+        {Object.entries(QUADRANT_CONFIG).map(([k,v]) => { const p: Record<QuadrantCode,[number,number]> = { Q1:[260,-235],Q2:[-255,-215],Q3:[260,248],Q4:[-255,228] }; const [x,y]=p[k as QuadrantCode]; return <text key={k} x={x} y={y} textAnchor={x>0?'start':'end'} fill={v.color+'cc'} fontSize={13} fontWeight={700}>{v.name}</text>; })}
         {items.map(item => { const zone=getZone(item); const pos=positions[item.id]?.[zone]; if(!pos) return null; const c=langColor(item.language); const zc=ZONE_CONFIG[zone]; const hv=hoveredId===item.id; return (<g key={item.id} style={{cursor:'pointer'}} onClick={()=>cycleZone(item)} onMouseEnter={()=>setHoveredId(item.id)} onMouseLeave={()=>setHoveredId(null)}>{hv && <circle cx={pos.x} cy={pos.y} r={18} fill={`${c}15`} />}<circle cx={pos.x} cy={pos.y} r={7} fill={c} stroke="#11142a" strokeWidth={3}/><circle cx={pos.x} cy={pos.y} r={9} fill="none" stroke={zc.color} strokeWidth={2.5}/>{hv && (<g onClick={e=>{e.stopPropagation();handleRemove(item.id);}} style={{cursor:'pointer'}}><circle cx={pos.x+14} cy={pos.y-14} r={8} fill="#ef4444cc" stroke="#11142a" strokeWidth={2}/><text x={pos.x+14} y={pos.y-10} textAnchor="middle" fill="#fff" fontSize={11}>x</text></g>)}</g>); })}
       </svg>
       <div style={{display:'flex',gap:24,alignItems:'center',marginTop:16,flexWrap:'wrap',justifyContent:'center'}}>
