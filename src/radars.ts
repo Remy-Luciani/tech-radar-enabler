@@ -64,9 +64,8 @@ function isValidRadar(raw: unknown): raw is Radar {
   for (const item of r.items) {
     if (!isValidTechItemShape(item)) return false;
   }
-  if (r.quadrantNames !== undefined && r.quadrantNames !== null && !isValidQuadrantNames(r.quadrantNames)) {
-    return false;
-  }
+  const hasInvalidQuadrantNames = r.quadrantNames !== undefined && r.quadrantNames !== null && !isValidQuadrantNames(r.quadrantNames);
+  if (hasInvalidQuadrantNames) return false;
   if (typeof r.createdAt !== 'number') return false;
   return true;
 }
@@ -99,7 +98,7 @@ export function loadRadars(): Radar[] {
     const storedExample = valid.find(r => r.id === EXAMPLE_RADAR_ID);
     const others = valid.filter(r => r.id !== EXAMPLE_RADAR_ID);
 
-    if (storedExample) {
+    if (storedExample !== undefined) {
       return [{ ...storedExample, isExample: true }, ...others];
     }
     return [example, ...others];
@@ -115,9 +114,7 @@ export function saveRadars(radars: Radar[]): void {
 }
 
 export function canDeleteRadar(radar: Radar): boolean {
-  if (radar.isExample) return false;
-  if (radar.id === EXAMPLE_RADAR_ID) return false;
-  return true;
+  return !radar.isExample && radar.id !== EXAMPLE_RADAR_ID;
 }
 
 export function nextRadarName(existing: Radar[], base: string): string {

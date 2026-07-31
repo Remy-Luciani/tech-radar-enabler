@@ -77,7 +77,7 @@ export default function RadarPage({ radar, onBack, onRenameRadar, onRenameQuadra
                 onKeyDown={e => { if (e.key === 'Enter') commitQuadrantEdit(q); }}
                 style={{ background: '#11142aee', border: '1px solid #ffffff15', borderRadius: 6, color: '#fff', fontSize: 13, padding: '6px 8px' }}
               />
-              {quadrantErrors[q] && <span style={{ color: '#ef4444', fontSize: 10 }}>{quadrantErrors[q]}</span>}
+              {quadrantErrors[q] !== undefined && <span style={{ color: '#ef4444', fontSize: 10 }}>{quadrantErrors[q]}</span>}
             </div>
           ))}
         </div>

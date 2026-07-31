@@ -74,7 +74,7 @@ export function useRadars() {
       if (r.id !== radarId) return r;
 
       const numericIds = r.items.map(i => parseInt(i.id)).filter(n => !Number.isNaN(n));
-      const nextId = numericIds.length > 0 ? Math.max(0, ...numericIds) + 1 : 1;
+      const nextId = Math.max(0, ...numericIds) + 1;
 
       const newItem: TechItem = {
         id: String(nextId),
