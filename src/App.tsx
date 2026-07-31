@@ -8,14 +8,9 @@ type Route = { view: 'home' } | { view: 'radar'; id: string };
 
 function parseHash(hash: string): Route {
   const cleaned = hash.replace(/^#\/?/, '');
-  if (cleaned.length === 0) return { view: 'home' };
-
   const parts = cleaned.split('/');
-  const isRadarRoute = parts[0] === 'radar' && typeof parts[1] === 'string' && parts[1].length > 0;
-  if (isRadarRoute) {
-    return { view: 'radar', id: parts[1] };
-  }
-  return { view: 'home' };
+  const isRadarRoute = cleaned.length > 0 && parts[0] === 'radar' && typeof parts[1] === 'string' && parts[1].length > 0;
+  return isRadarRoute ? { view: 'radar', id: parts[1] } : { view: 'home' };
 }
 
 function getPageHeader(route: Route, getRadar: (id: string) => Radar | undefined): { title: string; subtitle: string } {
@@ -24,7 +19,7 @@ function getPageHeader(route: Route, getRadar: (id: string) => Radar | undefined
   }
 
   const radar = getRadar(route.id);
-  if (!radar) {
+  if (radar === undefined) {
     return { title: 'Radar not found', subtitle: 'It may have been deleted' };
   }
 
@@ -72,7 +67,7 @@ export default function App() {
 
       {route.view === 'radar' && (() => {
         const radar = getRadar(route.id);
-        if (!radar) {
+        if (radar === undefined) {
           return (
             <button onClick={goHome} style={{ padding: '8px 16px', background: '#6366f1', border: 'none', borderRadius: 6, color: '#fff', cursor: 'pointer' }}>Back home</button>
           );

@@ -86,6 +86,7 @@ export default function RadarPage({ radar, onBack, onRenameRadar, onRenameQuadra
       <TechRadar
         items={radar.items}
         quadrantNames={radar.quadrantNames}
+        readOnly={radar.isExample}
         onAddItem={onAddItem}
         onRemoveItem={onRemoveItem}
         onCycleZone={onCycleZone}

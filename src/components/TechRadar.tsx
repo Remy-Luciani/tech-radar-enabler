@@ -46,7 +46,7 @@ export default function TechRadar({ items, quadrantNames, readOnly, onAddItem, o
 
   const handleAdd = useCallback(() => {
     if (readOnly) return;
-    if (!form.name.trim()) return;
+    if (form.name.trim().length === 0) return;
     onAddItem(form);
     setShowModal(false);
     setForm({ name: '', language: 'Framework', quadrant: 'Q1', zone: 'adopt' });
@@ -98,7 +98,7 @@ export default function TechRadar({ items, quadrantNames, readOnly, onAddItem, o
         {[-Math.PI/2,0,Math.PI/2,Math.PI].map(a => <line key={'l'+a} x1={-400*Math.cos(a)} y1={-400*Math.sin(a)} x2={400*Math.cos(a)} y2={400*Math.sin(a)} stroke="#ffffff06" strokeWidth={1} />)}
         <circle cx="0" cy="0" r={28} fill="#0a0c16" stroke="#ffffff12" strokeWidth={1.5} /><circle cx="0" cy="0" r={8} fill="#252840" />
         {Object.entries(QUADRANT_CONFIG).map(([k,v]) => { const p: Record<QuadrantCode,[number,number]> = { Q1:[260,-235],Q2:[-255,-215],Q3:[260,248],Q4:[-255,228] }; const kv = k as QuadrantCode; const [x,y]=p[kv]; return <text key={k} x={x} y={y} textAnchor={x>0?'start':'end'} fill={v.color+'cc'} fontSize={13} fontWeight={700}>{quadrantNames[kv]}</text>; })}
-        {items.map(item => { const zone=getZone(item); const pos=positions[item.id]?.[zone]; if(!pos) return null; const c=langColor(item.language); const zc=ZONE_CONFIG[zone]; const hv=hoveredId===item.id; return (<g key={item.id} style={{cursor:'pointer'}} onClick={()=>onCycleZone(item.id)} onMouseEnter={()=>setHoveredId(item.id)} onMouseLeave={()=>setHoveredId(null)}>{hv && <circle cx={pos.x} cy={pos.y} r={18} fill={`${c}15`} />}<circle cx={pos.x} cy={pos.y} r={7} fill={c} stroke="#11142a" strokeWidth={3}/><circle cx={pos.x} cy={pos.y} r={9} fill="none" stroke={zc.color} strokeWidth={2.5}/>{hv && !readOnly && (<g onClick={e=>{e.stopPropagation();onRemoveItem(item.id);}} style={{cursor:'pointer'}}><circle cx={pos.x+14} cy={pos.y-14} r={8} fill="#ef4444cc" stroke="#11142a" strokeWidth={2}/><text x={pos.x+14} y={pos.y-10} textAnchor="middle" fill="#fff" fontSize={11}>x</text></g>)}</g>); })}
+        {items.map(item => { const zone=getZone(item); const pos=positions[item.id]?.[zone]; if(!pos) return null; const c=langColor(item.language); const zc=ZONE_CONFIG[zone]; const hv=hoveredId===item.id; return (<g key={item.id} style={{cursor:'pointer'}} onClick={()=>{if(!readOnly)onCycleZone(item.id);}} onMouseEnter={()=>setHoveredId(item.id)} onMouseLeave={()=>setHoveredId(null)}>{hv && <circle cx={pos.x} cy={pos.y} r={18} fill={`${c}15`} />}<circle cx={pos.x} cy={pos.y} r={7} fill={c} stroke="#11142a" strokeWidth={3}/><circle cx={pos.x} cy={pos.y} r={9} fill="none" stroke={zc.color} strokeWidth={2.5}/>{hv && !readOnly && (<g onClick={e=>{e.stopPropagation();onRemoveItem(item.id);}} style={{cursor:'pointer'}}><circle cx={pos.x+14} cy={pos.y-14} r={8} fill="#ef4444cc" stroke="#11142a" strokeWidth={2}/><text x={pos.x+14} y={pos.y-10} textAnchor="middle" fill="#fff" fontSize={11}>x</text></g>)}</g>); })}
       </svg>
       <div style={{display:'flex',gap:24,alignItems:'center',marginTop:16,flexWrap:'wrap',justifyContent:'center'}}>
         <span style={{color:'#555',fontSize:9,fontWeight:700,letterSpacing:1}}>ZONE</span>

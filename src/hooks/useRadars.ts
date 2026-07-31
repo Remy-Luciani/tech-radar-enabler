@@ -29,7 +29,7 @@ export function useRadars() {
   const removeRadar = useCallback((id: string) => {
     setRadars(prev => {
       const target = prev.find(r => r.id === id);
-      if (!target) return prev;
+      if (target === undefined) return prev;
       if (!canDeleteRadar(target)) return prev;
       return prev.filter(r => r.id !== id);
     });
@@ -50,7 +50,7 @@ export function useRadars() {
     if (trimmed.length > 24) return 'Quadrant name is too long (max 24 characters)';
 
     const target = radars.find(r => r.id === radarId);
-    if (!target) return null;
+    if (target === undefined) return null;
 
     const otherNames = Object.entries(target.quadrantNames)
       .filter(([code]) => code !== quadrant)
