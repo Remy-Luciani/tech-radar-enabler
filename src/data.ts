@@ -44,9 +44,28 @@ export const DEFAULT_ITEMS: TechItem[] = [
 
 export const STORAGE_KEY = 'tech-radar-items';
 
+const VALID_ZONES: Zone[] = ['adopt', 'trial', 'assess', 'hold'];
+const VALID_QUADRANTS: QuadrantCode[] = ['Q1', 'Q2', 'Q3', 'Q4'];
+
+function isValidTechItem(item: unknown): item is TechItem {
+  if (typeof item !== 'object' || item === null) return false;
+  const i = item as Record<string, unknown>;
+  return typeof i.id === 'string' && typeof i.name === 'string' && typeof i.language === 'string'
+    && VALID_QUADRANTS.includes(i.quadrant as QuadrantCode) && VALID_ZONES.includes(i.zone as Zone);
+}
+
 export function loadItems(): TechItem[] {
   if (typeof localStorage === 'undefined') return DEFAULT_ITEMS;
-  try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) { const parsed: TechItem[] = JSON.parse(raw); if (Array.isArray(parsed)) return parsed; } } catch {}
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed: unknown = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        const valid = parsed.filter(isValidTechItem);
+        if (valid.length) return valid;
+      }
+    }
+  } catch {}
   return DEFAULT_ITEMS;
 }
 

@@ -19,11 +19,11 @@ export default function TechRadar() {
   }, []);
 
   const positions = useMemo(() => {
-    const result: Record<string, Record<Zone, { x: number; y: number }>> = {};
+    const result: Record<string, Partial<Record<Zone, { x: number; y: number }>>> = {};
     for (const item of items) {
       if (!result[item.id]) result[item.id] = {};
       const qItems = items.filter(i => i.quadrant === item.quadrant);
-      const idx = Math.max(0, Number(String(Math.floor(items.indexOf(item) / 2))) - 1);
+      const idx = qItems.indexOf(item);
       const quad = QUADRANT_CONFIG[item.quadrant];
       for (const zk of ['adopt' as Zone, 'trial', 'assess', 'hold'] as Zone[]) {
         if (!result[item.id][zk]) {
@@ -43,7 +43,7 @@ export default function TechRadar() {
 
   const handleAdd = useCallback(() => {
     if (!form.name.trim()) return;
-    setItems(prev => [...prev, { ...form, id: String(Math.max(0, ...prev.map(i => parseInt(i.id)) + 1)) }]);
+    setItems(prev => [...prev, { ...form, id: String(Math.max(0, ...prev.map(i => parseInt(i.id))) + 1) }]);
     setShowModal(false);
     setForm({ name: '', language: 'Framework', quadrant: 'Q1', zone: 'adopt' });
   }, [form]);
@@ -89,12 +89,21 @@ export default function TechRadar() {
       {hoveredId && (() => { const item = items.find(i => i.id === hoveredId); if (!item) return null; return (<div style={{position:'absolute',bottom:-10,left:'50%',transform:'translateX(-50%)',background:'#1a1d30ee',border:'1px solid #ffffff18',borderRadius:8,padding:'4px 12px',zIndex:20,pointerEvents:'none',whiteSpace:'nowrap',display:'flex',gap:6}}><span style={{color:langColor(item.language),fontWeight:700}}>{item.name}</span></div>); })()}
       <svg viewBox="-420 -420 840 840" style={{width:'100%',maxWidth:760,height:'auto',background:'#11142a',borderRadius:20}}>
         <circle cx="0" cy="0" r={400} fill="#11142a" />
-        {(['Q1','Q2','Q3','Q4'] as QuadCode[]).map(q => { const a=QUADRANT_CONFIG[q].angleRange; return <path key={q} d={'M '+400*Math.cos(a[0]+' '+-400*Math.sin(a[0])+' A 400 400 0 0 1 '+400*Math.cos(a[1])+' '+(-400*Math.sin(a[1]))+'/' + '/'} fill={QUADRANT_CONFIG[q].color+'15'} />; })}
-        {Object.values(ZONE_CONFIG).map(zc => <circle key={zc.label} cx="0" cy="0" r={zc.outerR} fill="none" stroke="#ffffff8" strokeWidth={1} />)}
-        {[-Math.PI/2,0,Math.PI/2,Math.PI].map(a => <line key={'l'+a} x1={-400*Math.cos(a)} y1={-400*Math.sin(a)} x2={400*Math.cos(a)} y2={400*Math.sin(a)} stroke="#ffffff6" strokeWidth={1} />)}
+        {(['Q1','Q2','Q3','Q4'] as QuadCode[]).map(q => {
+          const a = QUADRANT_CONFIG[q].angleRange;
+          const x1 = 400 * Math.cos(a[0]);
+          const y1 = -400 * Math.sin(a[0]);
+          const x2 = 400 * Math.cos(a[1]);
+          const y2 = -400 * Math.sin(a[1]);
+          const largeArc = (a[1] - a[0]) > Math.PI ? 1 : 0;
+          const d = `M ${x1} ${y1} A 400 400 0 ${largeArc} 1 ${x2} ${y2}`;
+          return <path key={q} d={d} fill={QUADRANT_CONFIG[q].color+'15'} />;
+        })}
+        {Object.values(ZONE_CONFIG).map(zc => <circle key={zc.label} cx="0" cy="0" r={zc.outerR} fill="none" stroke="#ffffff08" strokeWidth={1} />)}
+        {[-Math.PI/2,0,Math.PI/2,Math.PI].map(a => <line key={'l'+a} x1={-400*Math.cos(a)} y1={-400*Math.sin(a)} x2={400*Math.cos(a)} y2={400*Math.sin(a)} stroke="#ffffff06" strokeWidth={1} />)}
         <circle cx="0" cy="0" r={28} fill="#0a0c16" stroke="#ffffff12" strokeWidth={1.5} /><circle cx="0" cy="0" r={8} fill="#252840" />
-        {Object.entries(QUADRANT_CONFIG).map(([k,v]) => { const p: Record<QuadCode,[number,number]> = { Q1:[260,-235],Q2:[-255,-215],Q3:[260,248],Q4:[-255,228] }; const [x,y]=p[k]; return <text key={k} x={x} y={y} textAnchor={x>0?'start':'end'} fill={v.color+'cc'} fontSize={13} fontWeight={700}>{v.name}</text>; })}
-        {items.map(item => { const zone=getZone(item); const pos=positions[item.id]?.[zone]; if(!pos) return null; const c=langColor(item.language); const zc=ZONE_CONFIG[zone]; const hv=hoveredId===item.id; return (<g key={item.id} style={{cursor:'pointer'}} onClick={()=>cycleZone(item)} onMouseEnter={()=>setHoveredId(item.id)} onMouseLeave={()=>setHoveredId(null)}>{!hv && <circle cx={pos.x} cy={pos.y} r={7} fill={c} stroke="#11142a" strokeWidth={3} layout={{transition:{type:'spring',stiffness:300,damping:30}}}/>}{hv && (<><circle cx={pos.x} cy={pos.y} r={18} fill={'\'''+c+'15'}}/>'/><g onClick={e=>{e.stopPropagation();handleRemove(item.id);}} style={{cursor:'pointer'}}><circle cx={pos.x+14} cy={pos.y-14} r={8} fill="#ef4444cc" stroke="#11142a" strokeWidth={2}/><text x={pos.x+14} y={pos.y-10} textAnchor="middle" fill="#fff" fontSize={11}>x</text></g></>)}{!hv && <circle cx={pos.x} cy={pos.y} r={9} fill="none" stroke={zc.color} strokeWidth={2.5} layout={{transition:{type:'spring',stiffness:300,damping:30}}}/>}</g>); })}
+        {Object.entries(QUADRANT_CONFIG).map(([k,v]) => { const p: Record<QuadCode,[number,number]> = { Q1:[260,-235],Q2:[-255,-215],Q3:[260,248],Q4:[-255,228] }; const [x,y]=p[k as QuadCode]; return <text key={k} x={x} y={y} textAnchor={x>0?'start':'end'} fill={v.color+'cc'} fontSize={13} fontWeight={700}>{v.name}</text>; })}
+        {items.map(item => { const zone=getZone(item); const pos=positions[item.id]?.[zone]; if(!pos) return null; const c=langColor(item.language); const zc=ZONE_CONFIG[zone]; const hv=hoveredId===item.id; return (<g key={item.id} style={{cursor:'pointer'}} onClick={()=>cycleZone(item)} onMouseEnter={()=>setHoveredId(item.id)} onMouseLeave={()=>setHoveredId(null)}>{!hv && <circle cx={pos.x} cy={pos.y} r={7} fill={c} stroke="#11142a" strokeWidth={3}/>}{hv && (<><circle cx={pos.x} cy={pos.y} r={18} fill={`${c}15`} /><g onClick={e=>{e.stopPropagation();handleRemove(item.id);}} style={{cursor:'pointer'}}><circle cx={pos.x+14} cy={pos.y-14} r={8} fill="#ef4444cc" stroke="#11142a" strokeWidth={2}/><text x={pos.x+14} y={pos.y-10} textAnchor="middle" fill="#fff" fontSize={11}>x</text></g></>)}{!hv && <circle cx={pos.x} cy={pos.y} r={9} fill="none" stroke={zc.color} strokeWidth={2.5}/>}</g>); })}
       </svg>
       <div style={{display:'flex',gap:24,alignItems:'center',marginTop:16,flexWrap:'wrap',justifyContent:'center'}}>
         <span style={{color:'#555',fontSize:9,fontWeight:700,letterSpacing:1}}>ZONE</span>
