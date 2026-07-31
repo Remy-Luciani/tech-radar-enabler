@@ -50,7 +50,7 @@ const VALID_QUADRANTS: QuadrantCode[] = ['Q1', 'Q2', 'Q3', 'Q4'];
 function isValidTechItem(item: unknown): item is TechItem {
   if (typeof item !== 'object' || item === null) return false;
   const i = item as Record<string, unknown>;
-  return typeof i.id === 'string' && typeof i.name === 'string' && typeof i.language === 'string'
+  return typeof i.id === 'string' && /^\d+$/.test(i.id) && typeof i.name === 'string' && typeof i.language === 'string'
     && VALID_QUADRANTS.includes(i.quadrant as QuadrantCode) && VALID_ZONES.includes(i.zone as Zone);
 }
 

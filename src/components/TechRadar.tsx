@@ -29,8 +29,9 @@ export default function TechRadar() {
         if (!result[item.id][zk]) {
           const zc = ZONE_CONFIG[zk];
           const midAngle = (quad.angleRange[0] + quad.angleRange[1]) / 2;
-          const spread = Math.PI / Math.max(qItems.length, 1);
-          const angle = midAngle + idx * spread - spread / 2;
+          const quadWidth = quad.angleRange[1] - quad.angleRange[0];
+          const spread = quadWidth / (qItems.length + 1);
+          const angle = midAngle + (idx - (qItems.length - 1) / 2) * spread;
           const zoneCenter = zc.innerR + (zc.outerR - zc.innerR) / 2;
           result[item.id][zk] = { x: zoneCenter * Math.cos(angle), y: -zoneCenter * Math.sin(angle) };
         }
