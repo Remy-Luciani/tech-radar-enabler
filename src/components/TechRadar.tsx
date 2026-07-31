@@ -42,7 +42,7 @@ export default function TechRadar({ items, quadrantNames, readOnly, onAddItem, o
     return result;
   }, [items]);
 
-  const getZone = (item: TechItem): Zone => (item.zone || 'adopt') as Zone;
+  const getZone = (item: TechItem): Zone => item.zone ?? 'adopt';
 
   const handleAdd = useCallback(() => {
     if (readOnly) return;

@@ -43,13 +43,8 @@ export default function HomePage({ radars, onOpen, onCreate, onDelete }: HomePag
 
   const handleCreate = () => {
     const trimmed = newName.trim();
-    if (trimmed.length === 0) {
-      onCreate('Untitled Radar');
-    } else if (trimmed.length > 40) {
-      onCreate(trimmed.slice(0, 40));
-    } else {
-      onCreate(trimmed);
-    }
+    const radarName = trimmed.length === 0 ? 'Untitled Radar' : trimmed.slice(0, 40);
+    onCreate(radarName);
     setNewName('');
     setShowCreate(false);
   };

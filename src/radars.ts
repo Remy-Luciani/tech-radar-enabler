@@ -72,16 +72,9 @@ function isValidRadar(raw: unknown): raw is Radar {
 }
 
 function normalizeRadar(raw: Radar): Radar {
-  if (raw.id === EXAMPLE_RADAR_ID) {
-    return {
-      ...raw,
-      isExample: true,
-      quadrantNames: raw.quadrantNames ?? { ...DEFAULT_QUADRANT_NAMES },
-    };
-  }
   return {
     ...raw,
-    isExample: false,
+    isExample: raw.id === EXAMPLE_RADAR_ID,
     quadrantNames: raw.quadrantNames ?? { ...DEFAULT_QUADRANT_NAMES },
   };
 }

@@ -37,11 +37,7 @@ export default function RadarPage({ radar, onBack, onRenameRadar, onRenameQuadra
     if (draft === radar.quadrantNames[quadrant]) return;
 
     const error = onRenameQuadrant(quadrant, draft);
-    if (error) {
-      setQuadrantErrors(prev => ({ ...prev, [quadrant]: error }));
-    } else {
-      setQuadrantErrors(prev => ({ ...prev, [quadrant]: undefined }));
-    }
+    setQuadrantErrors(prev => ({ ...prev, [quadrant]: error ?? undefined }));
   };
 
   return (
