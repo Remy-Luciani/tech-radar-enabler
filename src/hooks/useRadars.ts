@@ -29,8 +29,7 @@ export function useRadars() {
   const removeRadar = useCallback((id: string) => {
     setRadars(prev => {
       const target = prev.find(r => r.id === id);
-      if (target === undefined) return prev;
-      if (!canDeleteRadar(target)) return prev;
+      if (target === undefined || !canDeleteRadar(target)) return prev;
       return prev.filter(r => r.id !== id);
     });
   }, []);
