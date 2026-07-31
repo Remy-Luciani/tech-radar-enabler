@@ -39,7 +39,7 @@ export default function TechRadar() {
 
   const handleAdd = useCallback(() => {
     if (!form.name.trim()) return;
-    setItems(prev => [...prev, { ...form, id: String(Math.max(0, ...prev.map(i => parseInt(i.id))) + 1) }]);
+    setItems(prev => [...prev, { ...form, name: form.name.trim(), id: String(Math.max(0, ...prev.map(i => parseInt(i.id))) + 1) }]);
     setShowModal(false);
     setForm({ name: '', language: 'Framework', quadrant: 'Q1', zone: 'adopt' });
   }, [form]);
