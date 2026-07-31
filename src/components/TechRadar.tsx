@@ -92,7 +92,7 @@ export default function TechRadar() {
           const x2 = 400 * Math.cos(a[1]);
           const y2 = -400 * Math.sin(a[1]);
           const largeArc = (a[1] - a[0]) > Math.PI ? 1 : 0;
-          const d = `M 0 0 L ${x1} ${y1} A 400 400 0 ${largeArc} 1 ${x2} ${y2} Z`;
+          const d = `M 0 0 L ${x1} ${y1} A 400 400 0 ${largeArc} 0 ${x2} ${y2} Z`;
           return <path key={q} d={d} fill={QUADRANT_CONFIG[q].color+'15'} />;
         })}
         {Object.values(ZONE_CONFIG).map(zc => <circle key={zc.label} cx="0" cy="0" r={zc.outerR} fill="none" stroke="#ffffff08" strokeWidth={1} />)}
