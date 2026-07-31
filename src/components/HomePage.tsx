@@ -84,14 +84,7 @@ export default function HomePage({ radars, onOpen, onCreate, onDelete }: HomePag
           const deletable = canDeleteRadar(radar);
           const isConfirming = confirmingId === radar.id;
 
-          let deleteLabel: string;
-          if (!deletable) {
-            deleteLabel = '';
-          } else if (isConfirming) {
-            deleteLabel = 'Confirm?';
-          } else {
-            deleteLabel = 'Delete';
-          }
+          const deleteLabel = !deletable ? '' : isConfirming ? 'Confirm?' : 'Delete';
 
           return (
             <div

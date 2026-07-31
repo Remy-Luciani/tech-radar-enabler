@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import HomePage from './components/HomePage';
 import RadarPage from './components/RadarPage';
 import { useRadars } from './hooks/useRadars';
+import type { Radar } from './radars';
 
 type Route = { view: 'home' } | { view: 'radar'; id: string };
 
@@ -10,10 +11,29 @@ function parseHash(hash: string): Route {
   if (cleaned.length === 0) return { view: 'home' };
 
   const parts = cleaned.split('/');
-  if (parts[0] === 'radar' && typeof parts[1] === 'string' && parts[1].length > 0) {
+  const isRadarRoute = parts[0] === 'radar' && typeof parts[1] === 'string' && parts[1].length > 0;
+  if (isRadarRoute) {
     return { view: 'radar', id: parts[1] };
   }
   return { view: 'home' };
+}
+
+function getPageHeader(route: Route, getRadar: (id: string) => Radar | undefined): { title: string; subtitle: string } {
+  if (route.view !== 'radar') {
+    return { title: 'Technology Radar', subtitle: "A living map of your organization's technology landscape" };
+  }
+
+  const radar = getRadar(route.id);
+  if (!radar) {
+    return { title: 'Radar not found', subtitle: 'It may have been deleted' };
+  }
+
+  return {
+    title: radar.name,
+    subtitle: radar.isExample
+      ? 'A ready-made example radar you can always come back to'
+      : 'Click any dot to cycle its phase',
+  };
 }
 
 export default function App() {
@@ -29,23 +49,7 @@ export default function App() {
   const goHome = () => { window.location.hash = ''; };
   const goToRadar = (id: string) => { window.location.hash = `#/radar/${id}`; };
 
-  let title: string;
-  let subtitle: string;
-  if (route.view === 'radar') {
-    const radar = getRadar(route.id);
-    if (radar) {
-      title = radar.name;
-      subtitle = radar.isExample
-        ? 'A ready-made example radar you can always come back to'
-        : 'Click any dot to cycle its phase';
-    } else {
-      title = 'Radar not found';
-      subtitle = 'It may have been deleted';
-    }
-  } else {
-    title = 'Technology Radar';
-    subtitle = "A living map of your organization's technology landscape";
-  }
+  const { title, subtitle } = getPageHeader(route, getRadar);
 
   return (
     <div className="app-shell" style={{ minHeight: '100vh', background: '#0a0b12', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '48px 20px' }}>

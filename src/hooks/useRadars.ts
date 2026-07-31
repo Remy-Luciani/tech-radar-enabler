@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { type TechItem, type QuadrantCode, type Zone } from '../data';
-import { type Radar, EXAMPLE_RADAR_ID, loadRadars, saveRadars, canDeleteRadar, createRadar } from '../radars';
+import { type Radar, loadRadars, saveRadars, canDeleteRadar, createRadar } from '../radars';
 
 export interface AddItemInput {
   name: string;
@@ -31,7 +31,6 @@ export function useRadars() {
       const target = prev.find(r => r.id === id);
       if (!target) return prev;
       if (!canDeleteRadar(target)) return prev;
-      if (id === EXAMPLE_RADAR_ID) return prev;
       return prev.filter(r => r.id !== id);
     });
   }, []);
@@ -50,24 +49,22 @@ export function useRadars() {
     if (trimmed.length === 0) return 'Quadrant name cannot be empty';
     if (trimmed.length > 24) return 'Quadrant name is too long (max 24 characters)';
 
-    let errorMessage: string | null = null;
+    const target = radars.find(r => r.id === radarId);
+    if (!target) return null;
+
+    const otherNames = Object.entries(target.quadrantNames)
+      .filter(([code]) => code !== quadrant)
+      .map(([, value]) => value.toLowerCase());
+
+    if (otherNames.includes(trimmed.toLowerCase())) return 'Another quadrant already has this name';
+
     setRadars(prev => prev.map(r => {
       if (r.id !== radarId) return r;
-
-      const otherNames = Object.entries(r.quadrantNames)
-        .filter(([code]) => code !== quadrant)
-        .map(([, value]) => value.toLowerCase());
-
-      if (otherNames.includes(trimmed.toLowerCase())) {
-        errorMessage = 'Another quadrant already has this name';
-        return r;
-      }
-
       return { ...r, quadrantNames: { ...r.quadrantNames, [quadrant]: trimmed } };
     }));
 
-    return errorMessage;
-  }, []);
+    return null;
+  }, [radars]);
 
   const addItem = useCallback((radarId: string, input: AddItemInput) => {
     const trimmedName = input.name.trim();

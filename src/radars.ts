@@ -93,7 +93,7 @@ export function loadRadars(): Radar[] {
 
   try {
     const raw = localStorage.getItem(RADARS_STORAGE_KEY);
-    if (!raw) return [example];
+    if (raw === null) return [example];
 
     const parsed: unknown = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [example];
